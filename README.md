@@ -1,5 +1,5 @@
 # Master_Thesis
-## Development of an Energy-Adaptive Mobile Sensor Platform for Climate Monitoring in Controlled Environment Agriculture**
+## **Development of an Energy-Adaptive Mobile Sensor Platform for Climate Monitoring in Controlled Environment Agriculture**
 
 This repository contains three ESP32-based Arduino firmware that together implement a distributed wireless environmental monitoring system for Controlled Environment Agriculture (CEA).
 
@@ -191,15 +191,105 @@ Power all ESP32 boards using:
 - Battery/Power Bank
 - External regulated supply
 
+### Power Architecture
+Power Optimization Strategy:
+
+Environmental monitoring systems deployed in Controlled Environment Agriculture (CEA) often operate continuously for long durations. To reduce unnecessary power consumption, a dynamic scheduling strategy was implemented in the slave node.
+
+Dynamic Scheduling Approach:
+
+Instead of continuously sampling sensors and transmitting data at fixed high-frequency intervals, the slave node dynamically schedules sensing operations.
+
+The optimization strategy includes:
+
+- Periodic sensor activation
+- Reduced CPU active time
+- Controlled transmission intervals
+- Selective sensor polling
+- Idle waiting between acquisition cycles
+
+This minimizes:
+- ESP32 processing overhead
+- Sensor active duration
+- Communication energy consumption
+
+flowchart TD
+
+A[Wake Cycle Starts]
+B[Activate Sensors]
+C[Read Sensor Data]
+D[Process Data]
+E[Send Data via I2C]
+F[Enter Idle/Delay State]
+
+A --> B
+B --> C
+C --> D
+D --> E
+E --> F
+F --> A
+
+**Energy Optimization Techniques:**
+1. Sensor Scheduling
+Sensors are read only during predefined intervals instead of continuously operating.
+2. Reduced Communication Overhead
+The slave node transmits data only when requested by the master node.
+Benefit:
+
+- Lower I2C activity
+- Reduced processor wake duration
+
+3. Duty Cycling
+The ESP32 remains idle between sensing operations, reducing average energy consumption.
+
+Benefit:
+
+- Improved battery life
+- Lower thermal load
+
+Hardware Connection Diagram:
+```mermaid
+flowchart LR
+
+subgraph Slave_Node
+S1[SCD30]
+S2[Soil Sensor]
+S3[TDS Sensor]
+S4[LDR]
+ESP1[ESP32 Slave]
+end
+
+subgraph Master_Node
+ESP2[ESP32 Master]
+L1[LoRa Module]
+end
+
+subgraph Gateway_Node
+ESP3[ESP32 Gateway]
+MQTT[MQTT Client]
+end
+
+TB[ThingsBoard Cloud]
+
+S1 --> ESP1
+S2 --> ESP1
+S3 --> ESP1
+S4 --> ESP1
+
+ESP1 -- I2C --> ESP2
+ESP2 --> L1
+
+L1 -- LoRa --> ESP3
+
+ESP3 -- Wi-Fi/MQTT --> TB
+```
+
 **Applications**
 - Smart greenhouse monitoring
 - Hydroponics
 - Precision agriculture
 - Distributed environmental sensing
 - Wireless sensor networks
-
-
-
 
 
 
