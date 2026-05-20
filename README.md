@@ -1,4 +1,4 @@
-# Master_Thesis
+# Master Thesis
 ## **Development of an Energy-Adaptive Mobile Sensor Platform for Climate Monitoring in Controlled Environment Agriculture**
 
 This repository contains three ESP32-based Arduino firmware that together implement a distributed wireless environmental monitoring system for Controlled Environment Agriculture (CEA).
