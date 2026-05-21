@@ -1,5 +1,4 @@
-# Master Thesis
-## **Development of an Energy-Adaptive Mobile Sensor Platform for Climate Monitoring in Controlled Environment Agriculture**
+# **Development of an Energy-Adaptive Mobile Sensor Platform for Climate Monitoring in Controlled Environment Agriculture**
 
 This repository contains three ESP32-based Arduino firmware that together implement a distributed wireless environmental monitoring system for Controlled Environment Agriculture (CEA).
 
@@ -12,8 +11,7 @@ Collects data from the slave node over I2C and transmits it using LoRa.
 3. Server/Gateway Node (Server_final.ino)
 Receives LoRa packets and uploads telemetry to a ThingsBoard MQTT server over Wi-Fi.
 
-### System Architecture
-# System Architecture
+## System Architecture
 
 ```mermaid
 flowchart TD
@@ -164,7 +162,7 @@ Gateway Node Libraries:
 - PubSubClient
 - ArduinoJson
 
-### Hardware Requirements
+## Hardware Requirements
 **Microcontrollers**
 - 3 × ESP32 development boards
 
@@ -177,7 +175,7 @@ Gateway Node Libraries:
 **Communication Modules**
 - RFM95 LoRa modules
 
-### Setup Instructions
+## Setup Instructions
 
 Step 1 — Upload Firmware
 | Device       | Firmware           |
@@ -203,7 +201,7 @@ Power all ESP32 boards using:
 - Battery/Power Bank
 - External regulated supply
 
-### Power Architecture
+## Power Architecture
 Power Optimization Strategy:
 
 Environmental monitoring systems deployed in Controlled Environment Agriculture (CEA) often operate continuously for long durations. To reduce unnecessary power consumption, a dynamic scheduling strategy was implemented in the slave node.
