@@ -117,17 +117,29 @@ The gateway node receives LoRa packets and uploads telemetry data to a ThingsBoa
 
 Communication Flow:
 
-LoRa Packet
-    ↓
-ESP32 Gateway
-    ↓
-Wi-Fi
-    ↓
-MQTT over TLS
-    ↓
-ThingsBoard Server
+```mermaid
+flowchart LR
 
-MQTT Configuration:
+S1[SCD30 Sensor]
+S2[Soil Moisture Sensor]
+S3[TDS Sensor]
+S4[LDR Sensor]
+
+ESP1[Slave ESP32]
+ESP2[Master ESP32]
+ESP3[Gateway ESP32]
+
+TB[ThingsBoard Server]
+
+S1 --> ESP1
+S2 --> ESP1
+S3 --> ESP1
+S4 --> ESP1
+
+ESP1 -- I2C --> ESP2
+ESP2 -- LoRa --> ESP3
+ESP3 -- MQTT over Wi-Fi --> TB
+```
 
 | Parameter     | Description                 |
 | ------------- | --------------------------- |
@@ -213,75 +225,79 @@ This minimizes:
 - Sensor active duration
 - Communication energy consumption
 
-flowchart TD
+## System Architecture
 
-A[Wake Cycle Starts]
-B[Activate Sensors]
-C[Read Sensor Data]
-D[Process Data]
-E[Send Data via I2C]
-F[Enter Idle/Delay State]
+```text
++----------------------+
+|      Sensors         |
+|----------------------|
+|  SCD30               |
+|  Soil Moisture       |
+|  TDS Sensor          |
+|  LDR                 |
++----------+-----------+
+           |
+           v
++----------------------+
+|    Slave ESP32       |
+| Sensor Acquisition   |
++----------+-----------+
+           |
+           | I2C
+           v
++----------------------+
+|    Master ESP32      |
+|   LoRa Transmission  |
++----------+-----------+
+           |
+           | LoRa
+           v
++----------------------+
+|   Gateway ESP32      |
+|    WiFi + MQTT       |
++----------+-----------+
+           |
+           | MQTT
+           v
++----------------------+
+|  ThingsBoard Cloud   |
++----------------------+
+```
 
-A --> B
-B --> C
-C --> D
-D --> E
-E --> F
-F --> A
+## Dynamic Power Optimization
 
-**Energy Optimization Techniques:**
-1. Sensor Scheduling
-Sensors are read only during predefined intervals instead of continuously operating.
-2. Reduced Communication Overhead
-The slave node transmits data only when requested by the master node.
-Benefit:
-
-- Lower I2C activity
-- Reduced processor wake duration
-
-3. Duty Cycling
-The ESP32 remains idle between sensing operations, reducing average energy consumption.
-
-Benefit:
-
-- Improved battery life
-- Lower thermal load
-
-Hardware Connection Diagram:
-```mermaid
-flowchart LR
-
-subgraph Slave_Node
-S1[SCD30]
-S2[Soil Sensor]
-S3[TDS Sensor]
-S4[LDR]
-ESP1[ESP32 Slave]
-end
-
-subgraph Master_Node
-ESP2[ESP32 Master]
-L1[LoRa Module]
-end
-
-subgraph Gateway_Node
-ESP3[ESP32 Gateway]
-MQTT[MQTT Client]
-end
-
-TB[ThingsBoard Cloud]
-
-S1 --> ESP1
-S2 --> ESP1
-S3 --> ESP1
-S4 --> ESP1
-
-ESP1 -- I2C --> ESP2
-ESP2 --> L1
-
-L1 -- LoRa --> ESP3
-
-ESP3 -- Wi-Fi/MQTT --> TB
+```text
++----------------------+
+| Wake Cycle Starts    |
++----------+-----------+
+           |
+           v
++----------------------+
+| Activate Sensors     |
++----------+-----------+
+           |
+           v
++----------------------+
+| Read Sensor Data     |
++----------+-----------+
+           |
+           v
++----------------------+
+| Process Data         |
++----------+-----------+
+           |
+           v
++----------------------+
+| Send Data via I2C    |
++----------+-----------+
+           |
+           v
++----------------------+
+| Enter Idle State     |
++----------+-----------+
+           |
+           v
+        Repeat
 ```
 
 **Applications**
